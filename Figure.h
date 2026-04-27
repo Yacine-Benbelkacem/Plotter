@@ -1,12 +1,13 @@
 #ifndef FIGURE_H
 #define FIGURE_H
 
-#include <SDL2/SDL.h>   
+#include <SDL2/SDL.h>
 #include "common_types.h"
-
+#include "Object.h"
 
 
 #define MAX_PLOTS 100
+#define MAX_OBJECTS 128
 
 #define FIGURE_MIN_WIDTH 320
 #define FIGURE_MIN_HEIGHT 240
@@ -16,14 +17,14 @@ typedef struct Figure Figure;
 struct Figure{
     SDL_Window* window;
     SDL_Renderer* renderer;
-    void* plotting_area;
+    Object* objects[MAX_OBJECTS];
+    void* layout;
 };
 
 
-Figure* Figure_Create();
-//void Figure_AddPlottingArea(Figure* figure);
+Figure* Figure_Create(const char* title);
 void Figure_Update(Figure* figure);
 void Figure_Show(Figure* figure);
-void Figure_plot(Figure* figure, plot* p);
+int Figure_add_object(Figure* figure, Object* obj);
 
 #endif // FIGURE_H
