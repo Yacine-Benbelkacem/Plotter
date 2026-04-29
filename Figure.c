@@ -1,8 +1,6 @@
 #include "Object.h"
 #include "Figure.h"
-
-
-static int object_counter = 0;
+#include "Subplot.h"
 
 Figure* Figure_Create(const char* title){
     Figure* figure = (Figure*)malloc(sizeof(Figure));
@@ -21,27 +19,34 @@ Figure* Figure_Create(const char* title){
 
     figure->renderer = SDL_CreateRenderer(figure->window, -1, SDL_RENDERER_ACCELERATED); 
 
+    figure->object_counter = 0;
+ 
     return figure;
 }
 
 void Figure_Update(Figure* figure){
-    
+
     SDL_SetRenderDrawColor(figure->renderer, 0, 0, 0, 255);
     SDL_RenderClear(figure->renderer);
     
-    for(int i = 0; i < MAX_OBJECTS; i++){
-        if(figure->objects[i] != NULL && figure->objects[i]->render != NULL){
-            figure->objects[i]->render(figure->objects[i], figure->renderer);
+    Figure_update_layout(figure);
+
+    for(int i = 0; i < figure->object_counter; i++){
+        if(figure->objects[i] != NULL){
+            if(figure->objects[i]->render != NULL){
+                figure->objects[i]->render(figure->objects[i], figure->renderer);
+            }
         }
     }
-
     SDL_RenderPresent(figure->renderer);
 
 }
 
 int Figure_add_object(Figure* figure, Object* obj){
-    if(figure != NULL && obj != NULL && object_counter < 128){
-        figure->objects[object_counter++] = obj;
+    printf("figure->object_counter: %d\n", figure->object_counter);
+    if(figure != NULL && obj != NULL && figure->object_counter < 128){
+        figure->objects[figure->object_counter] = (Object*)obj;
+        figure->object_counter++;
         return 0;
     }
     return -1;
@@ -57,7 +62,7 @@ void Figure_Show(Figure* figure){
                     running = SDL_FALSE;
                 }
             }
-            
+
             Figure_Update(figure);
             
         }
@@ -65,5 +70,39 @@ void Figure_Show(Figure* figure){
         SDL_DestroyRenderer(figure->renderer);
         SDL_DestroyWindow(figure->window);
         SDL_Quit();
+    }
+}
+
+int Figure_add_subplot(Figure* figure){
+    Subplot* subplot = Subplot_Create();
+    if(subplot != NULL){
+
+        Figure_add_object(figure, (Object*)subplot);
+        
+        return ((Object*)subplot)->id;
+    }
+    return 0;
+}
+
+void Figure_update_layout(Figure* figure){ 
+    int width, height;
+    SDL_GetWindowSize(figure->window, &width, &height);
+    int mean_width = width / (figure->object_counter%2 == 0 ? figure->object_counter/2 : figure->object_counter/2 + 1); // Assuming 2 columns for simplicity
+    int mean_height = height / (figure->object_counter%2 == 0 ? figure->object_counter/2 : figure->object_counter/2 + 1); // Assuming 2 rows for simplicity
+
+
+    for(int i = 0; i < figure->object_counter; i++){
+        if(figure->objects[i] != NULL){
+            Object_SetSize((Object*)figure->objects[i], mean_width, mean_height);
+            Frame_t frame = {
+                .parent = NULL,
+                .Hom.R = { .rxx = 1.0, .rxy = 0.0, 
+                           .ryx = 0.0, .ryy = 1.0 },
+                .Hom.t = { .u = (i%2)*mean_width, 
+                           .v = (i/2)*mean_height, 
+                           .s = 1.0 }
+            };
+            Object_SetFrame((Object*)figure->objects[i], &frame);
+        }
     }
 }

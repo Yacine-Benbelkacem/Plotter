@@ -10,8 +10,8 @@
 static int32_t id_counter = 0;
 
 
-Object* Object_Init(int32_t* width,
-                    int32_t* height,
+Object* Object_Init(int32_t width,
+                    int32_t height,
                     Frame_t* frame){
     Object* obj = malloc(sizeof(Object));
     if(obj == NULL){
@@ -19,11 +19,20 @@ Object* Object_Init(int32_t* width,
     }
     *obj = (Object){
         .id = id_counter++,
-        .width = *width,
-        .height = *height,
+        .width = width,
+        .height = height,
         .frame = *frame
     };
     return obj;
+}
+
+int Object_SetSize(Object* obj, int32_t width, int32_t height){
+    if(obj != NULL){
+        obj->width = width;
+        obj->height = height;
+        return 0;
+    }
+    return -1;
 }
 
 int Object_SetFrame(Object* obj, Frame_t* frame){
@@ -49,6 +58,6 @@ void print_object(Object* obj){
 
 void Object_Destroy(Object* obj){
     if(obj != NULL){
-        free(obj);
+        obj->destroy(obj);
     }
 }
