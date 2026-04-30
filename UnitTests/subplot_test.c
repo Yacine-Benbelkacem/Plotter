@@ -30,8 +30,9 @@ int main(){
     Figure* fig = Figure_Create("Test Subplot");
     int sub_id = Figure_add_subplot(fig);
     printf("Added subplot with ID: %d\n", sub_id);
-
-
+    int sub_id = Figure_add_subplot(fig);
+    printf("Added subplot with ID: %d\n", sub_id);
+    
     Figure_Show(fig);
 
     return 0;

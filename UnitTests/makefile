@@ -28,4 +28,4 @@ subplot_test: $(subplot_test_src) $(frame_test_src) $(object_test_src) $(figure_
 	$(CC) -o $@ subplot_test.c $^ $(subplot_test_inc) -lm -lSDL2
 
 clean:
-	rm -f frame_test object_test figure_test *.o
+	rm -f frame_test object_test figure_test subplot_test *.o

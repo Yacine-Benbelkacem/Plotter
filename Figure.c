@@ -1,6 +1,7 @@
 #include "Object.h"
 #include "Figure.h"
 #include "Subplot.h"
+#include <math.h>
 
 Figure* Figure_Create(const char* title){
     Figure* figure = (Figure*)malloc(sizeof(Figure));
@@ -87,8 +88,8 @@ int Figure_add_subplot(Figure* figure){
 void Figure_update_layout(Figure* figure){ 
     int width, height;
     SDL_GetWindowSize(figure->window, &width, &height);
-    int mean_width = width / (figure->object_counter%2 == 0 ? figure->object_counter/2 : figure->object_counter/2 + 1); // Assuming 2 columns for simplicity
-    int mean_height = height / (figure->object_counter%2 == 0 ? figure->object_counter/2 : figure->object_counter/2 + 1); // Assuming 2 rows for simplicity
+    int mean_width = (figure->object_counter>1) ? width / 2 : width; // Assuming 2 columns for simplicity   
+    int mean_height = height / (ceil(figure->object_counter / 2.0));
 
 
     for(int i = 0; i < figure->object_counter; i++){
@@ -98,7 +99,7 @@ void Figure_update_layout(Figure* figure){
                 .parent = NULL,
                 .Hom.R = { .rxx = 1.0, .rxy = 0.0, 
                            .ryx = 0.0, .ryy = 1.0 },
-                .Hom.t = { .u = (i%2)*mean_width, 
+                .Hom.t = { .u = (i%2 == 0 ? 0 : mean_width), 
                            .v = (i/2)*mean_height, 
                            .s = 1.0 }
             };
