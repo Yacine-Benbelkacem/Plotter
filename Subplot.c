@@ -1,5 +1,9 @@
 #include "Subplot.h"
 #include "Frame.h"
+#include "PlotLayer.h"
+
+#define MAX_SUBPLOT_LAYERS 10
+
 int subplot_idx_count=0;
 
 void Subplot_Render(void* self, void* renderer){
@@ -7,18 +11,18 @@ void Subplot_Render(void* self, void* renderer){
     Subplot* subplot = (Subplot*)self;
     SDL_Renderer* rend = (SDL_Renderer*)renderer;
 
-    // subplot base updated by Figure layout.
-    subplot->viewport->x = subplot->base.frame.Hom.t.u+1;
-    subplot->viewport->y = subplot->base.frame.Hom.t.v+1;
-    
-    subplot->viewport->w = subplot->base.width-1;
-    subplot->viewport->h = subplot->base.height-1;
+    Subplot_Update(subplot);
 
     SDL_RenderSetViewport(rend, subplot->viewport);
     // Render the viewport
     SDL_SetRenderDrawColor(rend, 255, 255, subplot->base.id*10, 255); // White background
     SDL_RenderFillRect(rend, NULL);
     // Render layers (not implemented yet)
+    for(int i = 0; i < subplot->subplot_layers_count; i++){
+        if(subplot->layers[i] != NULL){
+            ((Object*)subplot->layers[i])->render(subplot->layers[i], renderer);
+        }
+    }
 }
 
 
@@ -57,4 +61,37 @@ Subplot* Subplot_Create(){
     memset(subplot->layers, 0, sizeof(subplot->layers));
     subplot->base.destroy = Subplot_Destroy;
     return subplot;
+}
+
+PlotLayer* Subplot_AddLayer(Subplot* self){
+    if(self == NULL || self->subplot_layers_count >= MAX_SUBPLOT_LAYERS){
+        return NULL;
+    }
+    PlotLayer* layer = PlotLayer_Create();
+    if(layer == NULL){
+        return NULL;
+    }
+    self->layers[self->subplot_layers_count++] = layer;
+    return layer;
+}
+
+void Subplot_Update(Subplot* self){
+
+    // subplot base updated by Figure layout.
+    self->viewport->x = self->base.frame.Hom.t.u+1;
+    self->viewport->y = self->base.frame.Hom.t.v+1;
+    
+    self->viewport->w = self->base.width-1;
+    self->viewport->h = self->base.height-1;
+
+
+    if(self != NULL){
+        for(int i = 0; i < self->subplot_layers_count; i++){
+            if(self->layers[i] != NULL){
+                PlotLayer_plot_update(self->layers[i]);
+            }
+        }
+    }   
+
+
 }

@@ -9,15 +9,13 @@ typedef plot plot;
 
 
 typedef struct PlotLayer{
+    Object base; // Inherit from Object
+    
     plot* data; //plot
-    PlottingArea* area; //plotting area
 
     int pxl_resolution;
 
-    float x_resampledValues[10000];
-    float y_resampledValues[10000];
     int y_pxlValues[10000];
-    int NbPointsToDisplay;
 
     int max_val_idx;
     int min_val_idx;
@@ -25,7 +23,7 @@ typedef struct PlotLayer{
 }PlotLayer;
 
 
-void resample(PlotLayer * layer);
+void resample(PlotLayer * layer, int num_points);
 
 int rescale(PlotLayer * layer);
 

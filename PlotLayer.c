@@ -4,13 +4,10 @@
 #include "Plot.h"
 #include <math.h>
 
-
-void resample(PlotLayer * layer, int num_points){
-    // Implement resampling logic here
-    for(int i = 0; i < num_points; i++){
-        int index = (i * layer->data->num_points) / num_points;
-        layer->x_resampledValues[i] = layer->data->points[index].x;
-        layer->y_resampledValues[i] = layer->data->points[index].y;
+void PlotLayer_render(void* self, void* renderer){
+    PlotLayer* layer = (PlotLayer*)self;
+    if(layer != NULL){
+        PlotLayer_plot_update(layer);
     }
 }
 
@@ -48,54 +45,54 @@ void PlotLayer_plot_data(PlotLayer* layer){
 
         SDL_SetRenderDrawColor(layer->area->figure->renderer, 50, 20, 170, 255);
         for(int i = 0; i < layer->NbPointsToDisplay - 1; i++){
-            int pxl_x1 = i * layer->pxl_resolution  + layer->area->frame.Hom.t.u;
-            int pxl_y1 = layer->area->frame.Hom.t.v + layer->area->height - layer->y_pxlValues[i] + layer->y_pxlValues[layer->min_val_idx];
-            int pxl_x2 = (i + 1) * layer->pxl_resolution + layer->area->frame.Hom.t.u;
-            int pxl_y2 = layer->area->frame.Hom.t.v + layer->area->height - layer->y_pxlValues[i + 1] + layer->y_pxlValues[layer->min_val_idx];
+            int pxl_x1 = i * layer->pxl_resolution  + layer->area->origin_x;
+            int pxl_y1 = layer->area->origin_y + layer->area->height - layer->y_pxlValues[i] + layer->y_pxlValues[layer->min_val_idx];
+            int pxl_x2 = (i + 1) * layer->pxl_resolution + layer->area->origin_x;
+            int pxl_y2 = layer->area->origin_y + layer->area->height - layer->y_pxlValues[i + 1] + layer->y_pxlValues[layer->min_val_idx];
 
             SDL_RenderDrawLine(layer->area->figure->renderer, pxl_x1, pxl_y1, pxl_x2, pxl_y2);
         }
     }
 }
 
-void PlotLayer_plot_update(PlotLayer* layer){
-    if(layer != NULL && 
-       layer->data != NULL &&
-       layer->area != NULL){
+void PlotLayer_plot_update(PlotLayer* self){
+    if(self != NULL && 
+       self->data != NULL){
 
-        int num_data_points = layer->data->num_points;
-        int current_layer_size = layer->area->width;
+        int num_data_points = self->data->num_points;
+        int current_layer_size = ((Object*)self)->width;
 
-        layer->NbPointsToDisplay = ( (current_layer_size + 1) / PLOTLAYER_RESOLUTION );
+        int NbPointsToDisplay = ( (current_layer_size + 1) / PLOTLAYER_RESOLUTION );
 
-        printf("NbPointsToDisplay: %d\n", layer->NbPointsToDisplay);
-        if( layer->NbPointsToDisplay < num_data_points){
-            resample(layer, layer->NbPointsToDisplay);  
-        }else{
-            for(int i = 0; i < num_data_points; i++){
-                layer->x_resampledValues[i] = layer->data->points[i].x;
-                layer->y_resampledValues[i] = layer->data->points[i].y;
-            }
-            layer->NbPointsToDisplay = num_data_points;
-            layer->pxl_resolution = (current_layer_size + 1) / num_data_points;
-            printf("pxl_resolution: %d\n", layer->pxl_resolution);
-            printf("current_layer_size: %d\n", current_layer_size);
-            printf("num_data_points: %d\n", num_data_points);
+        printf("NbPointsToDisplay: %d\n", NbPointsToDisplay);
 
-        }
-        rescale(layer);
+        plot_set_nb_points_to_display(self->data, NbPointsToDisplay);
 
-        PlotLayer_plot_data(layer);
+
+        rescale(self);
+
+        PlotLayer_plot_data(self);
     }
 }
 
-PlotLayer* PlotLayer_Create(plot* data, PlottingArea* area){
-    PlotLayer* layer = (PlotLayer*)malloc(sizeof(PlotLayer));
-    if(layer){
-        area->layers[area->num_layers++] = layer;
-        layer->data = data;
-        layer->area = area;
+void PlotLayer_Destroy(PlotLayer* layer){
+    if(layer != NULL){
+        if(layer->data != NULL){
+            free(layer->data);
+        }
+        free(layer);
     }
+}
+
+PlotLayer* PlotLayer_Create(){
+    PlotLayer* layer = (PlotLayer*)malloc(sizeof(PlotLayer));
+    if(layer == NULL){
+        return NULL;
+    }
+    layer->data = NULL;
     layer->pxl_resolution = PLOTLAYER_RESOLUTION;
+    layer->base.render = PlotLayer_render;
+    layer->base.destroy = PlotLayer_Destroy;
     return layer;
 }
+
