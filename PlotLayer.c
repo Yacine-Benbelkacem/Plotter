@@ -2,6 +2,7 @@
 #include "PlottingArea.h"
 #include "PlotLayer.h"
 #include "Plot.h"
+#include "Frame.h"
 #include <math.h>
 
 void PlotLayer_render(void* self, void* renderer){
@@ -11,51 +12,27 @@ void PlotLayer_render(void* self, void* renderer){
     }
 }
 
-int rescale(PlotLayer * layer){
-    // Implement rescaling logic here
-    // get the max y value
-    float max_y = 0;
-    float min_y = 0;
-
-    for(int i = 0; i < layer->NbPointsToDisplay; i++){
-        if(layer->y_resampledValues[i] > max_y){
-            max_y = layer->y_resampledValues[i];
-            layer->max_val_idx = i;
-        }
-    }
-
-    for (int i = 0; i < layer->NbPointsToDisplay; i++)
-    {
-        if(layer->y_resampledValues[i] < min_y){
-            min_y = layer->y_resampledValues[i];
-            layer->min_val_idx = i;
-        }
-    }
-    
-
-    for(int i = 0; i < layer->NbPointsToDisplay; i++){
-        layer->y_pxlValues[i] = (layer->y_resampledValues[i] / (max_y - min_y)) * layer->area->height;
-    }
-}
 
 void PlotLayer_plot_data(PlotLayer* layer){
     if(layer != NULL && 
-       layer->data != NULL &&
-       layer->area != NULL){
-
-        SDL_SetRenderDrawColor(layer->area->figure->renderer, 50, 20, 170, 255);
-        for(int i = 0; i < layer->NbPointsToDisplay - 1; i++){
-            int pxl_x1 = i * layer->pxl_resolution  + layer->area->origin_x;
-            int pxl_y1 = layer->area->origin_y + layer->area->height - layer->y_pxlValues[i] + layer->y_pxlValues[layer->min_val_idx];
-            int pxl_x2 = (i + 1) * layer->pxl_resolution + layer->area->origin_x;
-            int pxl_y2 = layer->area->origin_y + layer->area->height - layer->y_pxlValues[i + 1] + layer->y_pxlValues[layer->min_val_idx];
-
-            SDL_RenderDrawLine(layer->area->figure->renderer, pxl_x1, pxl_y1, pxl_x2, pxl_y2);
-        }
+       layer->data != NULL){
+        // draw lines
     }
 }
 
-void PlotLayer_plot_update(PlotLayer* self){
+void PlotLayer_Data2Pixel(PlotLayer* layer){
+    for(int i = 0; i < layer->data->num_points_displayed; i++){
+        Vect res = Frame_multHV(
+                    layer->base.frame.Hom, 
+                    (Vect){.u = layer->data->displayed_points[i].x,
+                           .v = layer->data->displayed_points[i].y,
+                           .s = 1});
+        layer->pxlValues[i].x = res.u;
+        layer->pxlValues[i].y = res.v;
+    }
+}
+
+void PlotLayer_update(PlotLayer* self){
     if(self != NULL && 
        self->data != NULL){
 
@@ -68,10 +45,21 @@ void PlotLayer_plot_update(PlotLayer* self){
 
         plot_set_nb_points_to_display(self->data, NbPointsToDisplay);
 
+        plot_update(self->data);
 
-        rescale(self);
+        // rescale
+        Frame_t * f = &self->base.frame;
+        
+        f->Hom.R.rxx = 1;
+        f->Hom.R.ryx = 0;
+        f->Hom.R.rxy = 0; 
+        f->Hom.R.ryy = (double)self->base.height/(self->data->y_min_displayed_point-self->data->y_max_displayed_point);
 
-        PlotLayer_plot_data(self);
+        f->Hom.t.u = 0;
+        f->Hom.t.v = f->Hom.R.ryy * self->base.height;
+        f->Hom.t.s = 1;
+
+        PlotLayer_Data2Pixel(self);
     }
 }
 
@@ -90,9 +78,16 @@ PlotLayer* PlotLayer_Create(){
         return NULL;
     }
     layer->data = NULL;
-    layer->pxl_resolution = PLOTLAYER_RESOLUTION;
     layer->base.render = PlotLayer_render;
     layer->base.destroy = PlotLayer_Destroy;
     return layer;
 }
 
+int PlotLayer_SetData(PlotLayer* self, plot* data){
+    if(self != NULL
+        && data != NULL){
+        self->data = data;
+        return 0;
+    }
+    return -1;
+}
