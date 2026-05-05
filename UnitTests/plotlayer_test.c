@@ -1,13 +1,11 @@
 #include <stdio.h>
 #include <stdint.h>
-#include <math.h>
 #include <SDL2/SDL.h>
 #include <Frame.h>
 #include <Object.h>
 #include <Figure.h>
-#include <Subplot.h>
+#include <PlotLayer.h>
 #include <Plot.h>
-
 
 int main(){
     double rot[4] = {1,  0, 
@@ -30,7 +28,6 @@ int main(){
     int32_t w = 25;
     int32_t h = 25;
 
-
     plot * p = plot_init(10000);
 
     for(int i = 0; i<1000; i++){
@@ -38,15 +35,19 @@ int main(){
         plot_add_point(p, x, sin(x));
     }
 
-    Figure* fig = Figure_Create("Test Subplot");
-    int sub_id = Figure_add_subplot(fig);
-    
+   
 
-    Subplot* sub1 = (Subplot*)fig->objects[sub_id];
-    Subplot_AddPlot(sub1,p);
+    plot_update(p);
 
+
+    PlotLayer * pltlayer = PlotLayer_Create();
+    pltlayer->base.height = 500;
+    pltlayer->base.width = 500;
     
-    Figure_Show(fig);
+    PlotLayer_SetData(pltlayer,p);
+    PlotLayer_update(pltlayer);
+    
+    PlotLayer_Destroy(pltlayer);
 
     return 0;
 }

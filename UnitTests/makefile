@@ -13,6 +13,20 @@ object_test_inc = -I$(object_test_src_dir)
 object_test: $(frame_test_src) $(object_test_src)
 	$(CC) -o $@ object_test.c  $^ $(object_test_inc) -lm
 
+plot_test_src_dir = ..
+plot_test_src = $(plot_test_src_dir)/Plot.c
+plot_test_inc = -I$(plot_test_src_dir)
+
+plot_test:  $(frame_test_src) $(object_test_src) $ $(plot_test_src)
+	$(CC) -o $@ plot_test.c  $^ $(plot_test_inc) -lm -lSDL2
+
+plotlayer_test_src_dir = ..
+plotlayer_test_src = $(plotlayer_test_src_dir)/PlotLayer.c
+plotlayer_test_inc = -I$(plotlayer_test_src_dir)
+
+plotlayer_test: $(subplot_test_src) $(frame_test_src) $(object_test_src) $(figure_test_src) $ $(plotlayer_test_src) $(plot_test_src)
+	$(CC) -o $@ plotlayer_test.c  $^ $(plotlayer_test_inc) -lm -lSDL2
+
 figure_test_src_dir = ..
 figure_test_src = $(figure_test_src_dir)/Figure.c
 figure_test_inc = -I$(figure_test_src_dir)
@@ -24,8 +38,8 @@ subplot_test_src_dir = ..
 subplot_test_src = $(subplot_test_src_dir)/Subplot.c
 subplot_test_inc = -I$(subplot_test_src_dir)
 
-subplot_test: $(subplot_test_src) $(frame_test_src) $(object_test_src) $(figure_test_src)
+subplot_test: $(subplot_test_src) $(frame_test_src) $(object_test_src) $(figure_test_src) $(plot_test_src) $(plotlayer_test_src)
 	$(CC) -o $@ subplot_test.c $^ $(subplot_test_inc) -lm -lSDL2
 
 clean:
-	rm -f frame_test object_test figure_test subplot_test *.o
+	rm -f frame_test object_test figure_test subplot_test plotlayer_test plot_test *.o

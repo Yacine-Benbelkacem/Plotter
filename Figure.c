@@ -2,6 +2,7 @@
 #include "Figure.h"
 #include "Subplot.h"
 #include <math.h>
+#include <unistd.h>
 
 Figure* Figure_Create(const char* title){
     Figure* figure = (Figure*)malloc(sizeof(Figure));
@@ -26,9 +27,10 @@ Figure* Figure_Create(const char* title){
 }
 
 void Figure_Update(Figure* figure){
-
-    SDL_SetRenderDrawColor(figure->renderer, 0, 0, 0, 255);
     SDL_RenderClear(figure->renderer);
+    SDL_SetRenderDrawColor(figure->renderer, 255, 0, 255, 255);
+    //SDL_RenderFillRect(figure->renderer, NULL);
+    
     
     Figure_update_layout(figure);
 
@@ -39,6 +41,7 @@ void Figure_Update(Figure* figure){
             }
         }
     }
+
     SDL_RenderPresent(figure->renderer);
 
 }
@@ -65,6 +68,8 @@ void Figure_Show(Figure* figure){
             }
 
             Figure_Update(figure);
+
+            sleep(0.033);
             
         }
 
@@ -94,7 +99,7 @@ void Figure_update_layout(Figure* figure){
 
     for(int i = 0; i < figure->object_counter; i++){
         if(figure->objects[i] != NULL){
-            Object_SetSize((Object*)figure->objects[i], mean_width, mean_height);
+            Object_SetSize((Object*)figure->objects[i], mean_width-50, mean_height-50);
             Frame_t frame = {
                 .parent = NULL,
                 .Hom.R = { .rxx = 1.0, .rxy = 0.0, 

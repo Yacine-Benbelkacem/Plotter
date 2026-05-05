@@ -16,6 +16,8 @@ typedef struct Subplot{
 }Subplot;
 
 Subplot* Subplot_Create();
+int Subplot_AddPlot(Subplot* self, plot* p);
+void Subplot_Update(Subplot* self);
 void Subplot_Render(void* self, void* renderer);
 void Subplot_Destroy(void* subplot_ptr);
 #endif

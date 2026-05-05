@@ -5,7 +5,6 @@
 #include <Frame.h>
 #include <Object.h>
 #include <Figure.h>
-#include <Subplot.h>
 #include <Plot.h>
 
 
@@ -13,7 +12,7 @@ int main(){
     double rot[4] = {1,  0, 
                      0, -1}; // To SDL window origin
     
-    printf("Test Subplot.c module \n");
+    printf("Test Plot.c module \n");
 
     Vect pos = {
         .u = 20,
@@ -30,23 +29,28 @@ int main(){
     int32_t w = 25;
     int32_t h = 25;
 
-
     plot * p = plot_init(10000);
 
-    for(int i = 0; i<1000; i++){
+    for(int i = 0; i<100; i++){
         double x = 2*M_PI*i*0.01;
         plot_add_point(p, x, sin(x));
+        printf("x = %f, f(x) = %f\n", p->points[i].x,p->points[i].y);
     }
 
-    Figure* fig = Figure_Create("Test Subplot");
-    int sub_id = Figure_add_subplot(fig);
-    
+    plot_set_nb_points_to_display(p,20);
 
-    Subplot* sub1 = (Subplot*)fig->objects[sub_id];
-    Subplot_AddPlot(sub1,p);
+    plot_update(p);
 
     
-    Figure_Show(fig);
+    printf("%d \n", p->num_points_displayed);
+    printf("%f \n", p->y_min_displayed_point);
+    printf("%f \n", p->y_max_displayed_point);
+    
+    for(int i = 0; i < p->num_points_displayed; i++){
+        printf("x = %f, f(x) = %f\n", p->displayed_points[i].x,p->displayed_points[i].y);
+    }   
+
+
 
     return 0;
 }

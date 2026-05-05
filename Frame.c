@@ -6,10 +6,10 @@
 
 MatH Frame_multH(MatH r0, MatH r1){
     MatH res = {
-        .R = {  .rxx = (r0.R.rxx*r1.R.rxx + r0.R.rxy*r1.R.ryx)*r0.t.s,
-                .rxy = (r0.R.rxx*r1.R.rxy + r0.R.rxy*r1.R.ryy)*r0.t.s,
-                .ryx = (r0.R.ryx*r1.R.rxx + r0.R.ryy*r1.R.ryx)*r0.t.s,
-                .ryy = (r0.R.ryx*r1.R.rxy + r0.R.ryy*r1.R.ryy)*r0.t.s},
+        .R = {  .rxx = r0.R.rxx*r1.R.rxx + r0.R.rxy*r1.R.ryx,
+                .rxy = r0.R.rxx*r1.R.rxy + r0.R.rxy*r1.R.ryy,
+                .ryx = r0.R.ryx*r1.R.rxx + r0.R.ryy*r1.R.ryx,
+                .ryy = r0.R.ryx*r1.R.rxy + r0.R.ryy*r1.R.ryy},
         .t = {  .u = r0.R.rxx*r1.t.u+r0.R.rxy*r1.t.v+r0.t.u*r1.t.s,
                 .v = r0.R.ryx*r1.t.u+r0.R.ryy*r1.t.v+r0.t.v*r1.t.s,
                 .s = r0.t.s * r1.t.s},
@@ -19,8 +19,8 @@ MatH Frame_multH(MatH r0, MatH r1){
 
 Vect Frame_multHV(MatH r0, Vect v){
     Vect res = {
-        .u = (r0.R.rxx*v.u + r0.R.rxy*v.v)*r0.t.s + r0.t.u*v.s,
-        .v = (r0.R.ryx*v.u + r0.R.ryy*v.v)*r0.t.s + r0.t.v*v.s,
+        .u = (r0.R.rxx*v.u + r0.R.rxy*v.v) + r0.t.u*v.s,
+        .v = (r0.R.ryx*v.u + r0.R.ryy*v.v) + r0.t.v*v.s,
         .s = r0.t.s * v.s,
     };
     return res;

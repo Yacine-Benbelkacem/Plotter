@@ -14,15 +14,12 @@ typedef struct PlotLayer{
     point pxlValues[10000];
 }PlotLayer;
 
-
+PlotLayer* PlotLayer_Create();
 void resample(PlotLayer * layer, int num_points);
-
-int rescale(PlotLayer * layer);
-
 void PlotLayer_plot(PlotLayer* layer);
 int PlotLayer_SetData(PlotLayer* self, plot* data);
-void PlotLayer_plot_update(PlotLayer* layer);
-PlotLayer* PlotLayer_Create();
+void PlotLayer_update(PlotLayer* self);
+void PlotLayer_Destroy(void* layer);
 
 
 #endif // PLOTLAYER_H

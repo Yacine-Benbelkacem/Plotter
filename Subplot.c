@@ -75,12 +75,12 @@ PlotLayer* Subplot_AddLayer(Subplot* self){
     return layer;
 }
 
-int Subplot_AddPlot(Subplot* sub, plot* p){
-    PlotLayer* layer =  Subplot_AddLayer(sub);
+int Subplot_AddPlot(Subplot* self, plot* p){
+    PlotLayer* layer =  Subplot_AddLayer(self);
     PlotLayer_SetData(layer,p);
     
     Frame_t f = {
-        .parent = &sub->base.frame,
+        .parent = &self->base.frame,
     };
 
     Object_SetFrame((Object*) layer, &f);
@@ -100,7 +100,6 @@ void Subplot_Update(Subplot* self){
         for(int i = 0; i < self->subplot_layers_count; i++){
             if(self->layers[i] != NULL){
                 Object_SetSize((Object*)(&(*self->layers[i])), self->viewport->w, self->viewport->h);
-                PlotLayer_plot_update(self->layers[i]);
             }
         }
     }   
