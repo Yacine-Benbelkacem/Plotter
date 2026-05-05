@@ -9,11 +9,12 @@ int main(){
     plot* p = plot_init(10000);
 
     for(int i = 0; i < 10000; i++){
-        p->points[i].x = i * 0.0001f;
-        p->points[i].y = sin(2*PI*frq * p->points[i].x);
+        float x = i * 0.0001f; // time in seconds
+        float y = sin(2*PI*frq * x); // sine wave value at time x
+        plot_add_point(p, x, y);
     }
 
-    Figure* figure = Figure_Create();
+    Figure* figure = Figure_Create("POC");
 
     Figure_plot(figure, p);
 

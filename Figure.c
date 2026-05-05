@@ -1,8 +1,10 @@
+#include <math.h>
+#include <unistd.h>
+
 #include "Object.h"
 #include "Figure.h"
 #include "Subplot.h"
-#include <math.h>
-#include <unistd.h>
+#include "Plot.h"
 
 Figure* Figure_Create(const char* title){
     Figure* figure = (Figure*)malloc(sizeof(Figure));
@@ -111,4 +113,10 @@ void Figure_update_layout(Figure* figure){
             Object_SetFrame((Object*)figure->objects[i], &frame);
         }
     }
+}
+
+void Figure_plot(Figure* self, plot* plt){
+    int sub_id = Figure_add_subplot(self);
+    Subplot* sub = (Subplot*)self->objects[sub_id];
+    Subplot_AddPlot(sub,plt);
 }

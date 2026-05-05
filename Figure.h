@@ -24,6 +24,7 @@ struct Figure{
 
 
 Figure* Figure_Create(const char* title);
+void Figure_plot(Figure* self, plot* plt);
 void Figure_Update(Figure* figure);
 void Figure_Show(Figure* figure);
 int Figure_add_object(Figure* figure, Object* obj);
