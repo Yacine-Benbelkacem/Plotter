@@ -8,7 +8,7 @@ void PlotLayer_plot_data(PlotLayer* layer,SDL_Renderer* renderer){
     if(layer != NULL && 
        layer->data != NULL){
         // draw lines
-        SDL_SetRenderDrawColor(renderer,255,255,0,255);
+        SDL_SetRenderDrawColor(renderer,255,0,0,255);
         for(int i=0; i<layer->data->num_points_displayed-1; i++){
             SDL_RenderDrawLine(renderer, 
                                layer->pxlValues[i].x,
@@ -40,8 +40,6 @@ void PlotLayer_update(PlotLayer* self){
 
         int NbPointsToDisplay = ( (current_layer_size + 1) / PLOTLAYER_RESOLUTION );
 
-        printf("NbPointsToDisplay: %d\n", NbPointsToDisplay);
-
         plot_set_nb_points_to_display(self->data, NbPointsToDisplay);
 
         plot_update(self->data);
@@ -50,17 +48,13 @@ void PlotLayer_update(PlotLayer* self){
         Frame_t * f = &self->base.frame;
 
         f->Hom.R.rxx = (float)self->base.width/(self->data->x_max_displayed_point-self->data->x_min_displayed_point);
-        printf("rxx %f \n", f->Hom.R.rxx );
         f->Hom.R.ryx = 0;
         f->Hom.R.rxy = 0; 
         f->Hom.R.ryy = (float)self->base.height/(self->data->y_min_displayed_point-self->data->y_max_displayed_point);
-        printf("ryy %f \n", f->Hom.R.ryy);
 
         f->Hom.t.u = (-f->Hom.R.rxx * self->data->x_min_displayed_point);
         f->Hom.t.v = (-f->Hom.R.ryy * self->data->y_max_displayed_point);
         f->Hom.t.s = 1;
-        printf("tx %f \n", f->Hom.t.u );
-        printf("ty %f \n", f->Hom.t.v );
         
         PlotLayer_Data2Pixel(self);
     }

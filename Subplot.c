@@ -15,7 +15,7 @@ void Subplot_Render(void* self, void* renderer){
 
     SDL_RenderSetViewport(rend, subplot->viewport);
     // Render the viewport
-    SDL_SetRenderDrawColor(rend, 255, 255, subplot->base.id*10, 255); // White background
+    SDL_SetRenderDrawColor(rend, 255, 255, 255, 255); // White background
     SDL_RenderFillRect(rend, NULL);
     // Render layers (not implemented yet)
     for(int i = 0; i < subplot->subplot_layers_count; i++){

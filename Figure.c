@@ -27,8 +27,9 @@ Figure* Figure_Create(const char* title){
 }
 
 void Figure_Update(Figure* figure){
+    
+    SDL_SetRenderDrawColor(figure->renderer, 0, 0, 0, 255);
     SDL_RenderClear(figure->renderer);
-    SDL_SetRenderDrawColor(figure->renderer, 255, 0, 255, 255);
     //SDL_RenderFillRect(figure->renderer, NULL);
     
     
@@ -47,7 +48,6 @@ void Figure_Update(Figure* figure){
 }
 
 int Figure_add_object(Figure* figure, Object* obj){
-    printf("figure->object_counter: %d\n", figure->object_counter);
     if(figure != NULL && obj != NULL && figure->object_counter < 128){
         figure->objects[figure->object_counter] = (Object*)obj;
         figure->object_counter++;
@@ -99,7 +99,7 @@ void Figure_update_layout(Figure* figure){
 
     for(int i = 0; i < figure->object_counter; i++){
         if(figure->objects[i] != NULL){
-            Object_SetSize((Object*)figure->objects[i], mean_width-50, mean_height-50);
+            Object_SetSize((Object*)figure->objects[i], mean_width, mean_height);
             Frame_t frame = {
                 .parent = NULL,
                 .Hom.R = { .rxx = 1.0, .rxy = 0.0, 

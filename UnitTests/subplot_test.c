@@ -10,25 +10,8 @@
 
 
 int main(){
-    double rot[4] = {1,  0, 
-                     0, -1}; // To SDL window origin
-    
+
     printf("Test Subplot.c module \n");
-
-    Vect pos = {
-        .u = 20,
-        .v = 20, //cm
-        .s = 1, // scaled to 1
-    };
-
-    Vect dims = {
-        .u = 20,
-        .v = 20, //cm
-        .s = 1, // scaled to 1
-    };
-
-    int32_t w = 25;
-    int32_t h = 25;
 
 
     plot * p = plot_init(10000);
@@ -40,12 +23,13 @@ int main(){
 
     Figure* fig = Figure_Create("Test Subplot");
     int sub_id = Figure_add_subplot(fig);
-    
 
     Subplot* sub1 = (Subplot*)fig->objects[sub_id];
     Subplot_AddPlot(sub1,p);
+    sub_id = Figure_add_subplot(fig);
+    sub_id = Figure_add_subplot(fig);
+    sub_id = Figure_add_subplot(fig);
 
-    
     Figure_Show(fig);
 
     return 0;
