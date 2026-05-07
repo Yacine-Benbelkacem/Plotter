@@ -31,24 +31,21 @@ Vect Frame_multHV(MatH r0, Vect v){
 int Frame_SetOrigin(Frame_t* frame, double u, double v){
     frame->Hom.t.u = u;
     frame->Hom.t.v = v;
+    frame->Hom.t.s = 1;
     return 0;
 }
 
-int Frame_SetRotation(Frame_t* frame, double * Rot){
-    frame->Hom.R.rxx = Rot[0];
-    frame->Hom.R.rxy = Rot[1];
-    frame->Hom.R.ryx = Rot[2];
-    frame->Hom.R.ryy = Rot[3];
-    if((frame->Hom.R.rxx == 0 && frame->Hom.R.ryx == 0) ||
-       (frame->Hom.R.ryx == 0 && frame->Hom.R.ryy == 0)){
+int Frame_SetRotation(Frame_t* frame, double r11, double r12, double r21, double r22) {
+    frame->Hom.R.rxx = r11;
+    frame->Hom.R.rxy = r12;
+    frame->Hom.R.ryx = r21;
+    frame->Hom.R.ryy = r22;
+    if ((frame->Hom.R.rxx == 0 && frame->Hom.R.ryx == 0)) {
         frame->Hom.R.rxx = 1;
+    }
+    if (frame->Hom.R.ryx == 0 && frame->Hom.R.ryy == 0) {
         frame->Hom.R.ryy = 1;
     }
-    return 0;
-}
-
-int Frame_SetScale(Frame_t* frame, double s){
-    frame->Hom.t.s = s == 0 ? 1 : s; // Avoid zero scale
     return 0;
 }
 

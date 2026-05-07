@@ -12,24 +12,29 @@ static int32_t id_counter = 0;
 
 Object* Object_Init(int32_t width,
                     int32_t height,
-                    Frame_t* frame){
+                    Frame_t* frame)
+{
     Object* obj = malloc(sizeof(Object));
     if(obj == NULL){
         return NULL;
     }
+
     *obj = (Object){
         .id = id_counter++,
         .width = width,
         .height = height,
         .frame = *frame
     };
+
     return obj;
 }
 
-int Object_SetSize(Object* obj, int32_t width, int32_t height){
-    if(obj != NULL){
-        obj->width = width;
-        obj->height = height;
+int Object_SetSize(Object* object, int32_t width, int32_t height)
+{
+    if(object != NULL)
+    {
+        object->width = width;
+        object->height = height;
         return 0;
     }
     return -1;
@@ -44,6 +49,13 @@ int Object_SetFrame(Object* obj, Frame_t* frame){
     return -1;
 }
 
+void Object_Destroy(Object* obj){
+    if(obj != NULL){
+        obj->destroy(obj);
+    }
+    free(obj);
+}
+
 void print_object(Object* obj){
     if(obj != NULL){
         printf("Object ID: %d\n", obj->id);
@@ -53,11 +65,5 @@ void print_object(Object* obj){
         printf("Frame Rotation:\n");
         printf("  rxx: %.2f, rxy: %.2f\n", obj->frame.Hom.R.rxx, obj->frame.Hom.R.rxy);
         printf("  ryx: %.2f, ryy: %.2f\n", obj->frame.Hom.R.ryx, obj->frame.Hom.R.ryy);
-    }
-}
-
-void Object_Destroy(Object* obj){
-    if(obj != NULL){
-        obj->destroy(obj);
     }
 }

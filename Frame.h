@@ -48,8 +48,7 @@ MatH Frame_multH(MatH r0, MatH r1);
 Vect Frame_multHV(MatH r0, Vect v);
    
 int Frame_SetOrigin(Frame_t* frame, double u, double v);
-int Frame_SetRotation(Frame_t* frame, double * Rot);
-int Frame_SetScale(Frame_t* frame, double s);
+int Frame_SetRotation(Frame_t* frame, double r11, double r12, double r21, double r22) 
 
 void Frame_Destroy(Frame_t* frame);
 
