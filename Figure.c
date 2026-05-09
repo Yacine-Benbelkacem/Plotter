@@ -1,10 +1,12 @@
 #include <math.h>
 #include <unistd.h>
 
-#include "Object.h"
 #include "Figure.h"
+#include "Frame.h"
 #include "Subplot.h"
-#include "Plot.h"
+
+
+
 
 Figure* Figure_create(const char* title){
     Figure* figure = (Figure*)malloc(sizeof(Figure));
@@ -28,10 +30,10 @@ Figure* Figure_create(const char* title){
     return figure;
 }
 
-void Figure_get_size(const Figure * figure, int32_t * width, int32_t height) {
+void Figure_get_size(const Figure * figure, int32_t * width, int32_t * height) {
     SDL_GetWindowSize(figure->window,
-                      &width, 
-                      &height);
+                      width, 
+                      height);
 }
 
 
@@ -82,7 +84,7 @@ void Figure_update_layout(Figure* figure)
     |____________________________|____________________________|
     */
 
-    int width, height, width_per_subplot, height_per_subplot;
+    int32_t width, height, width_per_subplot, height_per_subplot;
     Frame_t subplot_frame;
 
     Frame_SetRotation(&subplot_frame,

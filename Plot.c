@@ -7,30 +7,34 @@
 
 
 
-float get_max(point array[], int size, int dim){
+double get_max(point array[], int32_t size, int32_t dim)
+{
+    double max = ((double*)(&array[0]))[dim];
 
-    float max = ((float*)(&array[0]))[dim];
-
-
-    for(int i = 0; i < size; i++){
-        if(((float*)(&array[i]))[dim] > max){
-            max = ((float*)(&array[i]))[dim];
+    for(int32_t i = 0; i < size; i++){
+        if(((double*)(&array[i]))[dim] > max){
+            max = ((double*)(&array[i]))[dim];
         }
     }
+ 
     return max;
 }
 
-float get_min(point array[], int size, int dim){
-    float min = ((float*)(&array[0]))[dim];
-    for(int i=0; i< size; i++){
-        if(min > ((float*)(&array[i]))[dim]){
-            min = ((float*)(&array[i]))[dim];
+double get_min(point array[], int32_t size, int32_t dim)
+{
+    double min = ((double*)(&array[0]))[dim];
+
+    for(int32_t i=0; i< size; i++){
+        if(min > ((double*)(&array[i]))[dim]){
+            min = ((double*)(&array[i]))[dim];
         }
     }
+
     return min;
 }
 
-plot* plot_init(int points_count){
+plot* plot_init(int32_t points_count)
+{
     plot* p = (plot*)malloc(sizeof(plot));
     p->points = (point*)malloc(points_count * sizeof(point));
     if(!p->points){
@@ -40,18 +44,19 @@ plot* plot_init(int points_count){
     p->points_count = points_count;
     p->displayed_points_count = points_count;
     p->current_point_idx = 0;
+    p->resolution = 1;
     return p;
 }
 
-void resample(plot * plt){
+static void resample(plot * plt){
     // Implement resampling logic here
     if( plt->displayed_points_count < plt->current_point_idx){
-        for(int i = 0; i < plt->displayed_points_count; i++){
-            int index = i * (plt->current_point_idx / plt->displayed_points_count);
+        for(int32_t i = 0; i < plt->displayed_points_count; i++){
+            int32_t index = i * (plt->current_point_idx / plt->displayed_points_count);
             plt->displayed_points[i] = plt->points[index];
         }
     }else{
-        for(int i = 0; i < plt->current_point_idx; i++){
+        for(int32_t i = 0; i < plt->current_point_idx; i++){
             plt->displayed_points[i] = plt->points[i];
         }
         plt->displayed_points_count = plt->current_point_idx;
@@ -71,13 +76,13 @@ void plot_update(void* self){
         }
 }
 
-void plot_set_nb_points_to_display(plot* p, int nb_points_to_display){
+void plot_set_nb_points_to_display(plot* p, int32_t nb_points_to_display){
     if(p != NULL && nb_points_to_display <= p->points_count){
         p->displayed_points_count = nb_points_to_display;
     }
 }
 
-plot* plot_add_point(plot* p, float x, float y){
+plot* plot_add_point(plot* p, double x, double y){
     if(p && p->points && p->points_count > 0){
         if(p->current_point_idx < p->points_count){
             p->points[p->current_point_idx].x = x;

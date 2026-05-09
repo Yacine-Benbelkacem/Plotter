@@ -1,5 +1,5 @@
 #include "Figure.h"
-#include "PlotLayer.h"
+#include "CurveLayer.h"
 #include "Plot.h"
 #include "common_types.h"
 

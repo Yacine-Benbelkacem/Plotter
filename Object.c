@@ -40,6 +40,17 @@ int Object_SetSize(Object* object, int32_t width, int32_t height)
     return -1;
 }
 
+int Object_SetOrigin(Object* object, int32_t u, int32_t v)
+{
+    if(object != NULL)
+    {
+        object->frame.Hom.t.u = u;
+        object->frame.Hom.t.v = v;
+        return 0;
+    }
+    return -1;
+}
+
 int Object_SetFrame(Object* obj, Frame_t* frame){
     if((obj != NULL)
         && (frame != NULL)){

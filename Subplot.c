@@ -1,6 +1,6 @@
 #include "Subplot.h"
 #include "Frame.h"
-#include "PlotLayer.h"
+#include "CurveLayer.h"
 
 #define MAX_SUBPLOT_LAYERS 10
 
@@ -13,11 +13,12 @@ void Subplot_Render(void* self, void* renderer){
 
     Subplot_Update(subplot);
 
+    // This instruction switches frame reference to subplot frame
     SDL_RenderSetViewport(rend, subplot->viewport);
     // Render the viewport
     SDL_SetRenderDrawColor(rend, 255, 255, 255, 255); // White background
     SDL_RenderFillRect(rend, NULL);
-    // Render layers (not implemented yet)
+    // Render layers with respect to subplot frame
     for(int i = 0; i < subplot->subplot_layers_count; i++){
         if(subplot->layers[i] != NULL){
             ((Object*)subplot->layers[i])->render(subplot->layers[i], renderer);
@@ -63,11 +64,11 @@ Subplot* Subplot_Create(){
     return subplot;
 }
 
-PlotLayer* Subplot_AddLayer(Subplot* self){
+CurveLayer* Subplot_AddLayer(Subplot* self){
     if(self == NULL || self->subplot_layers_count >= MAX_SUBPLOT_LAYERS){
         return NULL;
     }
-    PlotLayer* layer = PlotLayer_Create();
+    CurveLayer* layer = CurveLayer_Create();
     if(layer == NULL){
         return NULL;
     }
@@ -76,8 +77,8 @@ PlotLayer* Subplot_AddLayer(Subplot* self){
 }
 
 int Subplot_AddPlot(Subplot* self, plot* p){
-    PlotLayer* layer =  Subplot_AddLayer(self);
-    PlotLayer_SetData(layer,p);
+    CurveLayer* layer =  Subplot_AddLayer(self);
+    CurveLayer_SetData(layer,p);
     
     Frame_t f = {
         .parent = &self->base.frame,
@@ -89,17 +90,30 @@ int Subplot_AddPlot(Subplot* self, plot* p){
 void Subplot_Update(Subplot* self){
 
     // subplot base updated by Figure layout.
-    self->viewport->x = self->base.frame.Hom.t.u+1;
-    self->viewport->y = self->base.frame.Hom.t.v+1;
+    self->viewport->x = self->base.frame.Hom.t.u+2;
+    self->viewport->y = self->base.frame.Hom.t.v+2;
     
-    self->viewport->w = self->base.width-1;
-    self->viewport->h = self->base.height-1;
+    self->viewport->w = self->base.width-4;
+    self->viewport->h = self->base.height-4;
 
+    /*
+    |----------Subplot----------|
+    |                           |
+    |    |------Layer------|    |
+    |    |                 |    |
+    |  y |                 |    |             
+    |    |_________________|    |
+    |            x              |
+    |                           |
+    |          Title            |
+    |___________________________|
+    */
 
     if(self != NULL){
         for(int i = 0; i < self->subplot_layers_count; i++){
             if(self->layers[i] != NULL){
-                Object_SetSize((Object*)(&(*self->layers[i])), self->viewport->w, self->viewport->h);
+                Object_SetOrigin((Object*)(&(*self->layers[i])), SUBPLOT_H_MARGIN, SUBPLOT_V_MARGIN);
+                Object_SetSize((Object*)(&(*self->layers[i])), self->viewport->w-2*SUBPLOT_H_MARGIN, self->viewport->h-2*SUBPLOT_V_MARGIN);
             }
         }
     }   

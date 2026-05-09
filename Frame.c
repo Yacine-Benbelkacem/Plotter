@@ -68,6 +68,11 @@ int Frame_pInit(Frame_t** frame_ptr){
     return 0;
 }
 
+int Frame_SetScale(Frame_t* frame, double s){
+    frame->Hom.t.s = s == 0 ? 1 : s; // Avoid zero scale
+    return 0;
+}
+
 Frame_t* Frame_Init(Frame_t* parent,
                     char* label, 
                     double u,
@@ -80,8 +85,7 @@ Frame_t* Frame_Init(Frame_t* parent,
         return NULL;
     }
     Frame_SetOrigin(frame, u, v);
-    double rot[4] = {rxx, rxy, ryx, ryy};
-    Frame_SetRotation(frame, rot);
+    Frame_SetRotation(frame, rxx, rxy, ryx, ryy);
     Frame_SetScale(frame, s);
     frame->parent = parent;
     if(label != NULL){
