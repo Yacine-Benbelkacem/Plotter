@@ -50,7 +50,7 @@ Vect Frame_multHV(MatH r0, Vect v);
 int Frame_SetOrigin(Frame_t* frame, double u, double v);
 int Frame_SetRotation(Frame_t* frame, double r11, double r12, double r21, double r22);
 int Frame_SetScale(Frame_t* frame, double s);
-
+MatH Frame_GetTransform(Frame_t * frame);
 void Frame_Destroy(Frame_t* frame);
 
 #endif // FRAME_H

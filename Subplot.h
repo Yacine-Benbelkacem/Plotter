@@ -5,7 +5,7 @@
 #include "Object.h"
 #include "common_types.h"
 #include "Frame.h"
-#include "CurveLayer.h"
+#include "PlotLayer.h"
 
 #define MAX_PLOTS_PER_SUBPLOT 10
 #define SUBPLOT_V_MARGIN  50
@@ -15,7 +15,7 @@
 typedef struct Subplot{
     Object     base; // Inherit from Object
     SDL_Rect*  viewport;
-    CurveLayer* layers[MAX_PLOTS_PER_SUBPLOT];
+    PlotLayer* layers[MAX_PLOTS_PER_SUBPLOT];
     int subplot_layers_count;
 }Subplot;
 

@@ -86,6 +86,7 @@ void Figure_update_layout(Figure* figure)
 
     int32_t width, height, width_per_subplot, height_per_subplot;
     Frame_t subplot_frame;
+    subplot_frame.parent = NULL;
 
     Frame_SetRotation(&subplot_frame,
                         1.0, 0.0,

@@ -3,6 +3,25 @@
 #include <string.h>
 #include "Frame.h"
 
+MatH Frame_GetTransform(Frame_t * frame){
+    Frame_t * f = frame;
+
+    //printFrame(frame);
+
+    MatH res = {
+        .R = {
+            1,0,
+            0,1
+        },
+        .t ={0,0,1},
+    };
+    while(f->parent){
+        res = Frame_multH(Frame_multH( ((Frame_t*)f->parent)->Hom , f->Hom), res);
+        f = f->parent;
+    }
+    
+    return res;
+}
 
 MatH Frame_multH(MatH r0, MatH r1){
     MatH res = {

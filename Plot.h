@@ -1,7 +1,9 @@
 #ifndef PLOT_H
 #define PLOT_H
 
+#include <SDL2/SDL.h>
 #include <stdint.h>
+#include "Object.h"
 
 #define MAX_DISPLAYABLE_POINTS 16384
 
@@ -12,6 +14,7 @@ typedef struct point{
 
 
 typedef struct plot{
+    Object base;
     point* points;
     int32_t current_point_idx;
     int32_t points_count;
@@ -21,8 +24,7 @@ typedef struct plot{
     double y_min_displayed_point;
     double y_max_displayed_point; 
     double x_min_displayed_point;
-    double x_max_displayed_point; 
-
+    double x_max_displayed_point;
 }plot;
 
 plot* plot_init(int32_t points_count);

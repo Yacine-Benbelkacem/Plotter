@@ -5,7 +5,36 @@
 #define X_AXIS 0
 #define Y_AXIS 1
 
+#include <SDL2/SDL.h>
+#include "Object.h"
 
+void CurveLayer_Data2Pixel(plot* data){
+    for(int i = 0; i < data->displayed_points_count; i++){
+
+        MatH tr = Frame_GetTransform(&data->base.frame);
+
+        Vect res = Frame_multHV(
+                    tr, 
+                    (Vect){.u = data->displayed_points[i].x,
+                            .v = data->displayed_points[i].y,
+                            .s = 1});
+        data->displayed_points[i].x = res.u;
+        data->displayed_points[i].y = res.v;
+    }
+}
+
+void render(void * self, void * renderer){
+        CurveLayer_Data2Pixel((plot*) self);
+        SDL_SetRenderDrawColor(renderer,255,0,0,255);
+        for(int i=0; i< ((plot*) self)->displayed_points_count-1; i++){
+            SDL_RenderDrawLine((SDL_Renderer*)renderer, 
+                               ((plot*)self)->displayed_points[i].x,
+                               ((plot*)self)->displayed_points[i].y,
+                               ((plot*)self)->displayed_points[i+1].x,
+                               ((plot*)self)->displayed_points[i+1].y);
+        }
+
+}
 
 double get_max(point array[], int32_t size, int32_t dim)
 {
@@ -45,6 +74,8 @@ plot* plot_init(int32_t points_count)
     p->displayed_points_count = points_count;
     p->current_point_idx = 0;
     p->resolution = 1;
+
+    p->base.render = render;
     return p;
 }
 

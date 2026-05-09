@@ -1,6 +1,6 @@
 #include "Subplot.h"
 #include "Frame.h"
-#include "CurveLayer.h"
+#include "PlotLayer.h"
 
 #define MAX_SUBPLOT_LAYERS 10
 
@@ -18,6 +18,8 @@ void Subplot_Render(void* self, void* renderer){
     // Render the viewport
     SDL_SetRenderDrawColor(rend, 255, 255, 255, 255); // White background
     SDL_RenderFillRect(rend, NULL);
+    subplot->base.frame.Hom.t.u = 0;
+    subplot->base.frame.Hom.t.v = 0;
     // Render layers with respect to subplot frame
     for(int i = 0; i < subplot->subplot_layers_count; i++){
         if(subplot->layers[i] != NULL){
@@ -64,11 +66,11 @@ Subplot* Subplot_Create(){
     return subplot;
 }
 
-CurveLayer* Subplot_AddLayer(Subplot* self){
+PlotLayer* Subplot_AddLayer(Subplot* self){
     if(self == NULL || self->subplot_layers_count >= MAX_SUBPLOT_LAYERS){
         return NULL;
     }
-    CurveLayer* layer = CurveLayer_Create();
+    PlotLayer* layer = PlotLayer_Create();
     if(layer == NULL){
         return NULL;
     }
@@ -77,8 +79,8 @@ CurveLayer* Subplot_AddLayer(Subplot* self){
 }
 
 int Subplot_AddPlot(Subplot* self, plot* p){
-    CurveLayer* layer =  Subplot_AddLayer(self);
-    CurveLayer_SetData(layer,p);
+    PlotLayer* layer =  Subplot_AddLayer(self);
+    PlotLayer_SetData(layer,p);
     
     Frame_t f = {
         .parent = &self->base.frame,
@@ -112,8 +114,21 @@ void Subplot_Update(Subplot* self){
     if(self != NULL){
         for(int i = 0; i < self->subplot_layers_count; i++){
             if(self->layers[i] != NULL){
-                Object_SetOrigin((Object*)(&(*self->layers[i])), SUBPLOT_H_MARGIN, SUBPLOT_V_MARGIN);
+                Frame_t f = {
+                    .parent = &self->base.frame,
+                    .Hom = {
+                        .R = {
+                            1, 0,
+                            0, 1
+                        },
+                        .t = {
+                            .u = SUBPLOT_H_MARGIN,
+                            .v = SUBPLOT_V_MARGIN,
+                        }
+                    },
+                };
                 Object_SetSize((Object*)(&(*self->layers[i])), self->viewport->w-2*SUBPLOT_H_MARGIN, self->viewport->h-2*SUBPLOT_V_MARGIN);
+                Object_SetFrame((Object*)(&(*self->layers[i])), &f);
             }
         }
     }   
