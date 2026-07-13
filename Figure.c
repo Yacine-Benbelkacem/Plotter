@@ -4,11 +4,19 @@
 #include "Figure.h"
 #include "Frame.h"
 #include "Subplot.h"
+#include "Text.h"
+
+#define DEFAULT_FONT    "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
+#define DEFAULT_FONT_PT 13
+#define ZOOM_STEP       0.85   /* view shrink factor per wheel notch */
 
 
 Figure* Figure_create(const char* title){
     if(SDL_Init(SDL_INIT_VIDEO) < 0){
         return NULL;
+    }
+    if(Text_Init(DEFAULT_FONT, DEFAULT_FONT_PT) != 0){
+        SDL_Log("Warning: could not load font '%s'; text will not render.", DEFAULT_FONT);
     }
     Figure* figure = malloc(sizeof(Figure));
     if(figure == NULL){
@@ -52,10 +60,24 @@ int32_t Figure_add_subplot(Figure* figure){
     return idx;
 }
 
-void Figure_plot(Figure* self, plot* plt){
+int32_t Figure_plot(Figure* self, plot* plt){
     int32_t idx = Figure_add_subplot(self);
-    if(idx < 0) return;
+    if(idx < 0) return -1;
     Subplot_AddPlot((Subplot*)self->subplots[idx], plt);
+    return idx;
+}
+
+/* Route a wheel event at (mx,my) to whichever subplot contains the cursor. */
+static void Figure_handle_zoom(Figure* figure, int mx, int my, int wheel_y){
+    if(wheel_y == 0) return;
+    double factor = (wheel_y > 0) ? ZOOM_STEP : 1.0 / ZOOM_STEP;
+    for(int i = 0; i < figure->subplot_count; i++){
+        if(figure->subplots[i] != NULL){
+            if(Subplot_ZoomAt((Subplot*)figure->subplots[i], mx, my, factor)){
+                break;
+            }
+        }
+    }
 }
 
 void Figure_update_layout(Figure* figure){
@@ -132,8 +154,18 @@ void Figure_show(Figure* figure){
 
     while(running){
         while(SDL_PollEvent(&event)){
-            if(event.type == SDL_QUIT){
-                running = SDL_FALSE;
+            switch(event.type){
+                case SDL_QUIT:
+                    running = SDL_FALSE;
+                    break;
+                case SDL_MOUSEWHEEL: {
+                    int mx, my;
+                    SDL_GetMouseState(&mx, &my);
+                    Figure_handle_zoom(figure, mx, my, event.wheel.y);
+                    break;
+                }
+                default:
+                    break;
             }
         }
         Figure_update(figure);
@@ -146,6 +178,7 @@ void Figure_show(Figure* figure){
         }
     }
 
+    Text_Quit();
     SDL_DestroyRenderer(figure->renderer);
     SDL_DestroyWindow(figure->window);
     SDL_Quit();

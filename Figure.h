@@ -24,7 +24,8 @@ struct Figure{
 Figure* Figure_create(const char* title);
 void Figure_get_size(const Figure * figure, int32_t * width, int32_t * height);
 int32_t Figure_add_subplot(Figure* figure);
-void Figure_plot(Figure* self, plot* plt);
+/* Add a subplot holding `plt` and return its index (or -1 on failure). */
+int32_t Figure_plot(Figure* self, plot* plt);
 void Figure_update(Figure* figure);
 void Figure_show(Figure* figure);
 void Figure_update_layout(Figure* figure);

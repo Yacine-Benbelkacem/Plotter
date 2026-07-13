@@ -16,7 +16,11 @@ int main(){
 
     Figure* figure = Figure_create("POC");
 
-    Figure_plot(figure, p);
+    int32_t idx = Figure_plot(figure, p);
+    Subplot* sub = (Subplot*)figure->subplots[idx];
+    Subplot_SetTitle(sub,  "Sine wave (10 Hz)");
+    Subplot_SetXLabel(sub, "time [s]");
+    Subplot_SetYLabel(sub, "amplitude");
 
     Figure_show(figure);
 

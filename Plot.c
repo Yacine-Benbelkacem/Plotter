@@ -63,6 +63,7 @@ plot* plot_init(int32_t points_count){
     p->displayed_points_count = points_count;
     p->current_points_count   = 0;
     p->resolution        = 1;
+    p->view_initialized  = 0;
     p->base.render       = plot_render;
     p->base.destroy      = NULL;
     return p;
@@ -82,6 +83,29 @@ static void resample(plot* plt){
     }
 }
 
+void plot_reset_view(plot* p){
+    if(p == NULL) return;
+    /* Pad the vertical range by 5% so the trace does not touch the frame. */
+    double y_pad = 0.05 * (p->y_max_displayed_point - p->y_min_displayed_point);
+    p->x_view_min = p->x_min_displayed_point;
+    p->x_view_max = p->x_max_displayed_point;
+    p->y_view_min = p->y_min_displayed_point - y_pad;
+    p->y_view_max = p->y_max_displayed_point + y_pad;
+    p->view_initialized = 1;
+}
+
+void plot_zoom(plot* p, double x_center, double y_center, double factor){
+    if(p == NULL || !p->view_initialized) return;
+    /* Refuse to zoom in past a tiny window to keep the transform well-defined. */
+    double new_x_range = (p->x_view_max - p->x_view_min) * factor;
+    double new_y_range = (p->y_view_max - p->y_view_min) * factor;
+    if(factor < 1.0 && (new_x_range < 1e-9 || new_y_range < 1e-9)) return;
+    p->x_view_min = x_center - (x_center - p->x_view_min) * factor;
+    p->x_view_max = x_center + (p->x_view_max - x_center) * factor;
+    p->y_view_min = y_center - (y_center - p->y_view_min) * factor;
+    p->y_view_max = y_center + (p->y_view_max - y_center) * factor;
+}
+
 void plot_update(void* self){
     plot* plt = (plot*)self;
     if(plt == NULL) return;
@@ -90,6 +114,11 @@ void plot_update(void* self){
     plt->y_min_displayed_point = get_min(plt->displayed_points, plt->displayed_points_count, Y_AXIS);
     plt->x_max_displayed_point = get_max(plt->displayed_points, plt->displayed_points_count, X_AXIS);
     plt->x_min_displayed_point = get_min(plt->displayed_points, plt->displayed_points_count, X_AXIS);
+    /* Establish the initial view from the data extent; keep it across frames
+       so user zoom persists. */
+    if(!plt->view_initialized){
+        plot_reset_view(plt);
+    }
 }
 
 void plot_set_displayable_points_count(plot* p, int32_t nb_points_to_display){

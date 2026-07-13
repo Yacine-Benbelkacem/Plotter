@@ -4,7 +4,7 @@ TARGET = plotter
 SRCS = $(wildcard *.c)
 OBJ = $(SRCS:.c=.o)
 
-LD_FLAGS = -lSDL2 -lm
+LD_FLAGS = -lSDL2 -lSDL2_ttf -lm
 
 all: $(TARGET)
 

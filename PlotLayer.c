@@ -5,28 +5,10 @@
 #include <math.h>
 
 
-void PlotLayer_show_plotZone(PlotLayer* layer,SDL_Renderer* renderer){
-    if(layer != NULL){
-        // draw lines
-        SDL_SetRenderDrawColor(renderer,0,0,0,155);
-        SDL_Rect PlotZone = {
-            .w = layer->base.width+4,
-            .h = layer->base.height+4,
-            .x = layer->base.frame.Hom.t.u-2,
-            .y = layer->base.frame.Hom.t.v-2,
-        };
-        SDL_RenderDrawRect(renderer,&PlotZone);
-    }
-}
-
-void PlotLayer_plot_data(PlotLayer* layer,SDL_Renderer* renderer){
-    if(layer != NULL && 
-       layer->data != NULL){
-        // draw lines
-        PlotLayer_show_plotZone(layer, renderer);
-        
+static void PlotLayer_plot_data(PlotLayer* layer, SDL_Renderer* renderer){
+    if(layer != NULL && layer->data != NULL){
+        /* The subplot draws the axis frame; the layer only draws the trace. */
         ((Object*)layer->data)->render((Object*)layer->data, renderer);
-
     }
 }
 
@@ -34,7 +16,6 @@ void PlotLayer_update(PlotLayer* self){
     if(self != NULL && 
        self->data != NULL){
 
-        int num_data_points = self->data->current_points_count;
         int current_layer_size = ((Object*)self)->width;
 
         int NbPointsToDisplay = ( (current_layer_size + 1) / self->data->resolution );
@@ -50,13 +31,15 @@ void PlotLayer_update(PlotLayer* self){
 
         f.parent = &self->base.frame;
 
-        f.Hom.R.rxx = (double)self->base.width  / (self->data->x_max_displayed_point - self->data->x_min_displayed_point);
+        /* Map the visible view window onto the layer's pixel rectangle. The
+           y term is negated so data-y increases upward on screen. */
+        f.Hom.R.rxx = (double)self->base.width  / (self->data->x_view_max - self->data->x_view_min);
         f.Hom.R.ryx = 0;
         f.Hom.R.rxy = 0;
-        f.Hom.R.ryy = (double)self->base.height / (self->data->y_min_displayed_point - self->data->y_max_displayed_point);
+        f.Hom.R.ryy = (double)self->base.height / (self->data->y_view_min - self->data->y_view_max);
 
-        f.Hom.t.u = -f.Hom.R.rxx * self->data->x_min_displayed_point;
-        f.Hom.t.v = -f.Hom.R.ryy * self->data->y_max_displayed_point;
+        f.Hom.t.u = -f.Hom.R.rxx * self->data->x_view_min;
+        f.Hom.t.v = -f.Hom.R.ryy * self->data->y_view_max;
         f.Hom.t.s = 1;
         
         Object_SetFrame((Object*)(&(*self->data)), &f);
