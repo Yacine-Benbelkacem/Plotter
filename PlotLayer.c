@@ -34,12 +34,12 @@ void PlotLayer_update(PlotLayer* self){
     if(self != NULL && 
        self->data != NULL){
 
-        int num_data_points = self->data->current_point_idx;
+        int num_data_points = self->data->current_points_count;
         int current_layer_size = ((Object*)self)->width;
 
         int NbPointsToDisplay = ( (current_layer_size + 1) / self->data->resolution );
 
-        plot_set_nb_points_to_display(self->data, NbPointsToDisplay);
+        plot_set_displayable_points_count(self->data, NbPointsToDisplay);
 
         plot_update(self->data);
 

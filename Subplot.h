@@ -8,8 +8,8 @@
 #include "PlotLayer.h"
 
 #define MAX_PLOTS_PER_SUBPLOT 10
-#define SUBPLOT_V_MARGIN  50
-#define SUBPLOT_H_MARGIN  50
+#define SUBPLOT_V_MARGIN_RATIO  0.02
+#define SUBPLOT_H_MARGIN_RATIO  0.01
 
 
 typedef struct Subplot{

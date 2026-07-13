@@ -33,7 +33,7 @@ int main(){
 
     for(int i = 0; i<100; i++){
         double x = 2*M_PI*i*0.01;
-        plot_add_point(p, x, sin(x));
+        plot_insert_point(p, x, sin(x));
         printf("x = %f, f(x) = %f\n", p->points[i].x,p->points[i].y);
     }
 

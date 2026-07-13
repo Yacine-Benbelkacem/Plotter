@@ -52,19 +52,13 @@ int Object_SetOrigin(Object* object, int32_t u, int32_t v)
 }
 
 int Object_SetFrame(Object* obj, Frame_t* frame){
+
     if((obj != NULL)
         && (frame != NULL)){
         obj->frame = *frame;
         return 0;
     }
     return -1;
-}
-
-void Object_Destroy(Object* obj){
-    if(obj != NULL){
-        obj->destroy(obj);
-    }
-    free(obj);
 }
 
 void print_object(Object* obj){

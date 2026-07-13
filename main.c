@@ -11,7 +11,7 @@ int main(){
     for(int i = 0; i < 10000; i++){
         double x = i * 0.0001f; // time in seconds
         double y = sin(2*PI*frq * x); // sine wave value at time x
-        plot_add_point(p, x, y);
+        plot_insert_point(p, x, y);
     }
 
     Figure* figure = Figure_create("POC");

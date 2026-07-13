@@ -89,6 +89,19 @@ int Subplot_AddPlot(Subplot* self, plot* p){
     Object_SetFrame((Object*) layer, &f);
 }
 
+
+/*
+|----------Subplot----------|
+|                           |
+|    |------Layer------|    |
+|    |                 |    |
+|  y |                 |    |             
+|    |_________________|    |
+|            x              |
+|                           |
+|          Title            |
+|___________________________|
+*/
 void Subplot_Update(Subplot* self){
 
     // subplot base updated by Figure layout.
@@ -97,19 +110,6 @@ void Subplot_Update(Subplot* self){
     
     self->viewport->w = self->base.width-4;
     self->viewport->h = self->base.height-4;
-
-    /*
-    |----------Subplot----------|
-    |                           |
-    |    |------Layer------|    |
-    |    |                 |    |
-    |  y |                 |    |             
-    |    |_________________|    |
-    |            x              |
-    |                           |
-    |          Title            |
-    |___________________________|
-    */
 
     if(self != NULL){
         for(int i = 0; i < self->subplot_layers_count; i++){
@@ -122,12 +122,14 @@ void Subplot_Update(Subplot* self){
                             0, 1
                         },
                         .t = {
-                            .u = SUBPLOT_H_MARGIN,
-                            .v = SUBPLOT_V_MARGIN,
+                            .u = self->viewport->w*SUBPLOT_H_MARGIN_RATIO,
+                            .v = self->viewport->h*SUBPLOT_V_MARGIN_RATIO,
                         }
                     },
                 };
-                Object_SetSize((Object*)(&(*self->layers[i])), self->viewport->w-2*SUBPLOT_H_MARGIN, self->viewport->h-2*SUBPLOT_V_MARGIN);
+                Object_SetSize((Object*)(&(*self->layers[i])),
+                               self->viewport->w*(1-2*SUBPLOT_H_MARGIN_RATIO),
+                               self->viewport->h*(1-2*SUBPLOT_V_MARGIN_RATIO));
                 Object_SetFrame((Object*)(&(*self->layers[i])), &f);
             }
         }

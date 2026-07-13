@@ -8,7 +8,7 @@
 #include <SDL2/SDL.h>
 #include "Object.h"
 
-void CurveLayer_Data2Pixel(plot* data){
+void PlotLayer_Data2Pixel(plot* data){
     for(int i = 0; i < data->displayed_points_count; i++){
 
         MatH tr = Frame_GetTransform(&data->base.frame);
@@ -24,7 +24,7 @@ void CurveLayer_Data2Pixel(plot* data){
 }
 
 void render(void * self, void * renderer){
-        CurveLayer_Data2Pixel((plot*) self);
+        PlotLayer_Data2Pixel((plot*) self);
         SDL_SetRenderDrawColor(renderer,255,0,0,255);
         for(int i=0; i< ((plot*) self)->displayed_points_count-1; i++){
             SDL_RenderDrawLine((SDL_Renderer*)renderer, 
@@ -70,9 +70,9 @@ plot* plot_init(int32_t points_count)
         free(p);
         return NULL;
     }
-    p->points_count = points_count;
+    p->points_maxcount = points_count;
     p->displayed_points_count = points_count;
-    p->current_point_idx = 0;
+    p->current_points_count = 0;
     p->resolution = 1;
 
     p->base.render = render;
@@ -81,16 +81,16 @@ plot* plot_init(int32_t points_count)
 
 static void resample(plot * plt){
     // Implement resampling logic here
-    if( plt->displayed_points_count < plt->current_point_idx){
+    if( plt->displayed_points_count < plt->current_points_count){
         for(int32_t i = 0; i < plt->displayed_points_count; i++){
-            int32_t index = i * (plt->current_point_idx / plt->displayed_points_count);
+            int32_t index = i * (plt->current_points_count / plt->displayed_points_count);
             plt->displayed_points[i] = plt->points[index];
         }
     }else{
-        for(int32_t i = 0; i < plt->current_point_idx; i++){
+        for(int32_t i = 0; i < plt->current_points_count; i++){
             plt->displayed_points[i] = plt->points[i];
         }
-        plt->displayed_points_count = plt->current_point_idx;
+        plt->displayed_points_count = plt->current_points_count;
     }
 }
 
@@ -107,22 +107,22 @@ void plot_update(void* self){
         }
 }
 
-void plot_set_nb_points_to_display(plot* p, int32_t nb_points_to_display){
-    if(p != NULL && nb_points_to_display <= p->points_count){
+void plot_set_displayable_points_count(plot* p, int32_t nb_points_to_display){
+    if(p != NULL && nb_points_to_display <= p->points_maxcount){
         p->displayed_points_count = nb_points_to_display;
     }
 }
 
-plot* plot_add_point(plot* p, double x, double y){
-    if(p && p->points && p->points_count > 0){
-        if(p->current_point_idx < p->points_count){
-            p->points[p->current_point_idx].x = x;
-            p->points[p->current_point_idx].y = y;
-            p->current_point_idx++;
+plot* plot_insert_point(plot* p, double x, double y){
+    if(p && p->points && p->points_maxcount > 0){
+        if(p->current_points_count < p->points_maxcount){
+            p->points[p->current_points_count].x = x;
+            p->points[p->current_points_count].y = y;
+            p->current_points_count++;
             return p;
         }
     }else{
         plot * p =plot_init(1);
-        return(plot_add_point(p, x, y));
+        return(plot_insert_point(p, x, y));
     }
 }
