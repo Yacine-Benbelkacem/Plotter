@@ -1,71 +1,64 @@
 #include <math.h>
-#include <unistd.h>
+#include <string.h>
 
 #include "Figure.h"
 #include "Frame.h"
 #include "Subplot.h"
 
 
-
-
 Figure* Figure_create(const char* title){
-    Figure* figure = (Figure*)malloc(sizeof(Figure));
-    for(int i = 0; i < 128; i++){
-        figure->subplots[i] = NULL;
+    if(SDL_Init(SDL_INIT_VIDEO) < 0){
+        return NULL;
     }
+    Figure* figure = malloc(sizeof(Figure));
+    if(figure == NULL){
+        return NULL;
+    }
+    memset(figure->subplots, 0, sizeof(figure->subplots));
+
     figure->window = SDL_CreateWindow(
                         title,
                         SDL_WINDOWPOS_CENTERED,
                         SDL_WINDOWPOS_CENTERED,
-                        FIGURE_MIN_WIDTH*2,
-                        FIGURE_MIN_HEIGHT*2,
+                        FIGURE_MIN_WIDTH * 2,
+                        FIGURE_MIN_HEIGHT * 2,
                         SDL_WINDOW_RESIZABLE
                     );
     SDL_SetWindowMinimumSize(figure->window, FIGURE_MIN_WIDTH, FIGURE_MIN_HEIGHT);
 
-    figure->renderer = SDL_CreateRenderer(figure->window, -1, SDL_RENDERER_ACCELERATED); 
+    figure->renderer = SDL_CreateRenderer(figure->window, -1, SDL_RENDERER_ACCELERATED);
 
     figure->subplot_count = 0;
- 
+
     return figure;
 }
 
-void Figure_get_size(const Figure * figure, int32_t * width, int32_t * height) {
-    SDL_GetWindowSize(figure->window,
-                      width, 
-                      height);
+void Figure_get_size(const Figure* figure, int32_t* width, int32_t* height){
+    SDL_GetWindowSize(figure->window, width, height);
 }
 
-
-int32_t Figure_add_subplot(Figure* figure)
-{
-    if (figure == NULL) {
+int32_t Figure_add_subplot(Figure* figure){
+    if(figure == NULL || figure->subplot_count >= MAX_SUBPLOTS){
         return -1;
     }
-    
+
     Subplot* subplot = Subplot_Create();
-
-    if ((subplot != NULL)
-         && (figure->subplot_count < MAX_SUBPLOTS)) {
-
-        figure->subplots[figure->subplot_count++] = 
-            (Object*)subplot;
-        
-        return ((Object*)subplot)->id;
+    if(subplot == NULL){
+        return -1;
     }
 
-    return -1;
+    int32_t idx = figure->subplot_count;
+    figure->subplots[figure->subplot_count++] = (Object*)subplot;
+    return idx;
 }
 
 void Figure_plot(Figure* self, plot* plt){
-    int sub_id = Figure_add_subplot(self);
-    Subplot* sub = (Subplot*)self->subplots[sub_id];
-    Subplot_AddPlot(sub,plt);
+    int32_t idx = Figure_add_subplot(self);
+    if(idx < 0) return;
+    Subplot_AddPlot((Subplot*)self->subplots[idx], plt);
 }
 
-
-void Figure_update_layout(Figure* figure)
-{
+void Figure_update_layout(Figure* figure){
     /* Figure layout */
     /*
     .--------------------------------------------------------.
@@ -88,81 +81,73 @@ void Figure_update_layout(Figure* figure)
     Frame_t subplot_frame;
     subplot_frame.parent = NULL;
 
-    Frame_SetRotation(&subplot_frame,
-                        1.0, 0.0,
-                        0.0, 1.0);
+    Frame_SetRotation(&subplot_frame, 1.0, 0.0, 0.0, 1.0);
 
     Figure_get_size(figure, &width, &height);
 
-    width_per_subplot = 
-        (figure->subplot_count > 1) ? width / 2 : width;  // Max of 2 columns in the figure 
+    width_per_subplot =
+        (figure->subplot_count > 1) ? width / 2 : width;
 
-    height_per_subplot = 
-        height / (ceil(figure->subplot_count / 2.0));
+    height_per_subplot =
+        height / (int32_t)ceil(figure->subplot_count / 2.0);
 
-    for (int i = 0; i < figure->subplot_count; i++) 
-    {
-        if (figure->subplots[i] != NULL)
-        {
-            Frame_SetOrigin(&subplot_frame, 
-                            (i%2 == 0 ? 0 : width_per_subplot),
-                            (i/2)*height_per_subplot);
+    for(int i = 0; i < figure->subplot_count; i++){
+        if(figure->subplots[i] != NULL){
+            Frame_SetOrigin(&subplot_frame,
+                            (i % 2 == 0) ? 0 : width_per_subplot,
+                            (i / 2) * height_per_subplot);
 
             Object_SetSize((Object*)figure->subplots[i],
-                            width_per_subplot, 
+                            width_per_subplot,
                             height_per_subplot);
 
-            Object_SetFrame((Object*)figure->subplots[i], 
-                             &subplot_frame);
+            Object_SetFrame((Object*)figure->subplots[i], &subplot_frame);
         }
     }
 }
 
-void Figure_render(Figure* figure) {
-
-    // background color : black
+static void Figure_render(Figure* figure){
     SDL_SetRenderDrawColor(figure->renderer, 0, 0, 0, 255);
     SDL_RenderClear(figure->renderer);
 
     for(int i = 0; i < figure->subplot_count; i++){
-        if(figure->subplots[i] != NULL){
-            if(figure->subplots[i]->render != NULL){
-                figure->subplots[i]->render(figure->subplots[i], figure->renderer);
-            }
+        if(figure->subplots[i] != NULL && figure->subplots[i]->render != NULL){
+            figure->subplots[i]->render(figure->subplots[i], figure->renderer);
         }
     }
 
     SDL_RenderPresent(figure->renderer);
 }
 
-void Figure_update(Figure* figure)
-{
+void Figure_update(Figure* figure){
     Figure_update_layout(figure);
     Figure_render(figure);
 }
 
-void Figure_show(Figure* figure) {
-    if(figure != NULL) 
-    {
-        SDL_bool running = SDL_TRUE;
-        SDL_Event event;
+void Figure_show(Figure* figure){
+    if(figure == NULL) return;
 
-        while (running) 
-        {
-            while (SDL_PollEvent(&event)) 
-            {
-                if (event.type == SDL_QUIT) {
-                    running = SDL_FALSE;
-                }
+    SDL_bool running = SDL_TRUE;
+    SDL_Event event;
+
+    while(running){
+        while(SDL_PollEvent(&event)){
+            if(event.type == SDL_QUIT){
+                running = SDL_FALSE;
             }
-
-            Figure_update(figure);
-
-            sleep(0.033);
         }
-
-        SDL_DestroyRenderer(figure->renderer);
-        SDL_DestroyWindow(figure->window);
-        SDL_Quit();
+        Figure_update(figure);
+        SDL_Delay(33);
     }
+
+    for(int i = 0; i < figure->subplot_count; i++){
+        if(figure->subplots[i] != NULL && figure->subplots[i]->destroy != NULL){
+            figure->subplots[i]->destroy(figure->subplots[i]);
+        }
+    }
+
+    SDL_DestroyRenderer(figure->renderer);
+    SDL_DestroyWindow(figure->window);
+    SDL_Quit();
+    free(figure);
 }

@@ -1,25 +1,20 @@
-#ifndef PlotLayer_H
-#define PlotLayer_H
+#ifndef PLOTLAYER_H
+#define PLOTLAYER_H
 
 #include "common_types.h"
 #include "Object.h"
 #include "Plot.h"
 
-#define PlotLayer_RESOLUTION 1 //pixels per point
-
-
+#define PlotLayer_RESOLUTION 1
 
 typedef struct PlotLayer{
-    Object base; // Inherit from Object
-    plot* data; //plot
-    point pxlValues[10000];
+    Object base;
+    plot*  data;
 }PlotLayer;
 
 PlotLayer* PlotLayer_Create();
-void PlotLayer_plot(PlotLayer* layer);
-int PlotLayer_SetData(PlotLayer* self, plot* data);
-void PlotLayer_update(PlotLayer* self);
-void PlotLayer_Destroy(void* layer);
+int        PlotLayer_SetData(PlotLayer* self, plot* data);
+void       PlotLayer_update(PlotLayer* self);
+void       PlotLayer_Destroy(void* layer);
 
-
-#endif // PlotLayer_H
+#endif // PLOTLAYER_H

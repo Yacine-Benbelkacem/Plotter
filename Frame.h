@@ -2,11 +2,6 @@
 #define    FRAME_H
 
 
-typedef struct Point{
-	double x;
-	double y;
-}Point;
-
 typedef struct Vect2D{
     double u;
     double v;

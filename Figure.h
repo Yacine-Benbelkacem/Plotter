@@ -7,7 +7,6 @@
 #include "Object.h"
 
 
-#define MAX_PLOTS 100
 #define MAX_SUBPLOTS 128
 
 #define FIGURE_MIN_WIDTH 320

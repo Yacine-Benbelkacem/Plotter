@@ -10,27 +10,26 @@
 
 
 int main(){
+    printf("Test Subplot.c module\n");
 
-    printf("Test Subplot.c module \n");
+    plot* p = plot_init(10000);
 
-
-    plot * p = plot_init(10000);
-
-    for(int i = 0; i<1000; i++){
-        double x = 2*M_PI*i*0.01;
+    for(int i = 0; i < 1000; i++){
+        double x = 2 * M_PI * i * 0.01;
         plot_insert_point(p, x, sin(x));
     }
 
-    Figure* fig = Figure_Create("Test Subplot");
-    int sub_id = Figure_add_subplot(fig);
+    Figure* fig = Figure_create("Test Subplot");
+    int32_t idx = Figure_add_subplot(fig);
 
-    Subplot* sub1 = (Subplot*)fig->objects[sub_id];
-    Subplot_AddPlot(sub1,p);
-    sub_id = Figure_add_subplot(fig);
-    sub_id = Figure_add_subplot(fig);
-    sub_id = Figure_add_subplot(fig);
+    Subplot* sub1 = (Subplot*)fig->subplots[idx];
+    Subplot_AddPlot(sub1, p);
 
-    Figure_Show(fig);
+    Figure_add_subplot(fig);
+    Figure_add_subplot(fig);
+    Figure_add_subplot(fig);
+
+    Figure_show(fig);
 
     return 0;
 }

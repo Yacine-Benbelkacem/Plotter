@@ -50,10 +50,10 @@ void PlotLayer_update(PlotLayer* self){
 
         f.parent = &self->base.frame;
 
-        f.Hom.R.rxx = (float)self->base.width/(self->data->x_max_displayed_point-self->data->x_min_displayed_point);
+        f.Hom.R.rxx = (double)self->base.width  / (self->data->x_max_displayed_point - self->data->x_min_displayed_point);
         f.Hom.R.ryx = 0;
-        f.Hom.R.rxy = 0; 
-        f.Hom.R.ryy = (float)self->base.height/(self->data->y_min_displayed_point-self->data->y_max_displayed_point);
+        f.Hom.R.rxy = 0;
+        f.Hom.R.ryy = (double)self->base.height / (self->data->y_min_displayed_point - self->data->y_max_displayed_point);
 
         f.Hom.t.u = -f.Hom.R.rxx * self->data->x_min_displayed_point;
         f.Hom.t.v = -f.Hom.R.ryy * self->data->y_max_displayed_point;

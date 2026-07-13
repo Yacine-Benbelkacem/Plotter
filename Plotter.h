@@ -1,6 +1,9 @@
-#include "Figure.h"
-#include "PlotLayer.h"
-#include "Plot.h"
-#include "common_types.h"
+#ifndef PLOTTER_H
+#define PLOTTER_H
 
-array
+#include "Figure.h"
+#include "Subplot.h"
+#include "Plot.h"
+#include "PlotLayer.h"
+
+#endif // PLOTTER_H
